@@ -1,0 +1,5 @@
+.spreadsheet-cell.num_cell{
+     -fx-background-color: #b4d4ad ;
+     -fx-background-insets: 0, 0 1 1 0;
+     -fx-alignment:  center_right;
+ }
