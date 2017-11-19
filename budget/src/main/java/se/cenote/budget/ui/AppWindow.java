@@ -59,14 +59,14 @@ public class AppWindow extends Application{
 	@Override
 	public void start(Stage stage) throws Exception {
 		
-		stack = new StackPane();
-		
-		glassPane = new GlassPane();
-		glassPane.setOnMouseClicked( e -> removeGlass());
-		
 		Parent parent = new MainFrame();
 		
+		stack = new StackPane();
+		glassPane = new GlassPane();
+		glassPane.setOnMouseClicked( e -> removeGlass());
 		stack.getChildren().addAll(parent, glassPane); // NOTE: Order important!
+	
+		//stack.getChildren().addAll(parent);
 		
 		Scene scene = new Scene(stack, width, height);
 		scene.getStylesheets().add(getCssPath("budget.css"));
@@ -280,30 +280,34 @@ public class AppWindow extends Application{
 		}
 		
 		private void update(){
-			GraphicsContext g = canvas.getGraphicsContext2D();
 			
-			g.clearRect(0, 0, getWidth(), getHeight());
+			if(getWidth() > 0){
 			
-			if(rand.nextBoolean()){
-				for(int i = 0, num = rand.nextInt(10); i < num; i++){
-					double x = rand.nextInt((int)getWidth());
-					double size = 10 + rand.nextInt(8);
-					double age = rand.nextInt(90);
-					nodes.add(new GlassNode(x, -size, size, age));
+				GraphicsContext g = canvas.getGraphicsContext2D();
+				
+				g.clearRect(0, 0, getWidth(), getHeight());
+				
+				if(rand.nextBoolean()){
+					for(int i = 0, num = rand.nextInt(10); i < num; i++){
+						double x = rand.nextInt((int)getWidth());
+						double size = 10 + rand.nextInt(8);
+						double age = rand.nextInt(90);
+						nodes.add(new GlassNode(x, -size, size, age));
+					}
 				}
-			}
-			
-			for(Iterator<GlassNode> itr = nodes.iterator(); itr.hasNext(); ){
-				GlassNode node = itr.next();
-				if(node.y > getHeight())
-					itr.remove();
-				else{
-					node.y += 1 + (node.y/getWidth() * 10);
-					
-					double alpha = node.getAge()/90;
-					g.setGlobalAlpha(alpha);
-					g.setFill(Color.ORANGE);
-					g.fillOval(node.x, node.y, node.size, node.size);
+				
+				for(Iterator<GlassNode> itr = nodes.iterator(); itr.hasNext(); ){
+					GlassNode node = itr.next();
+					if(node.y > getHeight())
+						itr.remove();
+					else{
+						node.y += 1 + (node.y/getWidth() * 10);
+						
+						double alpha = node.getAge()/90;
+						g.setGlobalAlpha(alpha);
+						g.setFill(Color.ORANGE);
+						g.fillOval(node.x, node.y, node.size, node.size);
+					}
 				}
 			}
 		}

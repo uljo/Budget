@@ -1,23 +1,23 @@
-[konto]
-1$IN$Intäkter
+[account-2017]
+1$IN$Revenues
 1.1$IN$Sales
 
-2$UT$Utgifter
-2.1$UT$Office
-2.1.1$UT$Rent
-2.1.2$UT$Insurance
-2.2$UT$Transportation
-2.2.1$UT$Flight
-2.2.2$UT$Boat
-2.3$UT$Equipment
-2.3.1$UT$Rasberry Pi
-2.3.2$UT$Batteries
+2$OUT$Expenses
+2.1$OUT$Office
+2.1.1$OUT$Rent
+2.1.2$OUT$Insurance
+2.2$OUT$Transportation
+2.2.1$OUT$Flight
+2.2.2$OUT$Boat
+2.3$OUT$Equipment
+2.3.1$OUT$Rasberry Pi
+2.3.2$OUT$Batteries
 
-[budget]
-1.1$2017$0$0$4000
-2.1.1$2017$0$0$1000
-2.1.2$2017$0$0$500
-2.2.1$2017$0$0$1000
-2.2.2$2017$0$0$700
-2.3.1$2017$0$0$700
-2.3.2$2017$2$1$100
+[budget-2017]
+1.1$0$0$4000
+2.1.1$0$0$1000
+2.1.2$0$0$500
+2.2.1$0$0$1000
+2.2.2$0$0$700
+2.3.1$0$0$700
+2.3.2$2$1$100

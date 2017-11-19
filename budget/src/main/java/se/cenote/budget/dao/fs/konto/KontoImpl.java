@@ -45,7 +45,7 @@ public class KontoImpl implements Konto{
 	}
 	
 	public boolean isUtTyp() {
-		return KontoTyp.UT.equals(typ);
+		return KontoTyp.OUT.equals(typ);
 	}
 	
 	public boolean isNettoTyp() {

@@ -30,6 +30,13 @@ import se.cenote.budget.model.konto.Konto.KontoTyp;
 public class StoreManagerImpl implements StoreManager {
 	
 	private static final String FILE_NAME = "budget.ser";
+	
+	private static final String SECTION_ACCOUNT = "[account-";
+	private static final String SECTION_BUDGET = "[budget-";
+	
+	private static final String TYPE_IN = "IN";
+	private static final String TYPE_OUT = "OUT";
+	
 	private File storeFile;
 	
 	private Map<Integer, ArsBudget> arsBudgetByYear;
@@ -142,6 +149,7 @@ public class StoreManagerImpl implements StoreManager {
 			ArsBudget arsBudget = new ArsBudgetImpl(year, kontonIn, kontonUt, budgetByKonto);
 			arsBudgetByYear.put(arsBudget.getYear(), arsBudget);
 		}
+		System.out.println("arsBudgetByYear.size=" + arsBudgetByYear.size());
 	}
 	
 	
@@ -202,11 +210,11 @@ public class StoreManagerImpl implements StoreManager {
 	 * Class for persisting Konton and Budget on files.
 	 * <p>
 	 * <code>
-	 * [konto]</br>
+	 * [account]</br>
 	 * KontoId$KontoType$Name</br>
 	 * </br>
 	 * [budget]</br>
-	 * KontoId$Year$BudgetType$MonthNumber$Amount</br>
+	 * KontoId$BudgetType$MonthNumber$Amount</br>
 	 * 
 	 * --</br>
 	 * BudgetType : 0 = Every month, 1 = One single month, 2 = Varannan, 3 = Third months, 4 = Fourths months, 6 = Sixth months</br>
@@ -230,19 +238,19 @@ public class StoreManagerImpl implements StoreManager {
 				for(ArsBudget arsBudget : map.values()){
 				
 					// Konton
-					writer.println("[konto]");
+					writer.println(SECTION_ACCOUNT + Integer.toString(arsBudget.getYear()) + "]");
 					
 					// In
 					Konto konto = arsBudget.getInKonton().get(0);
 					writeKonton(konto, writer);
 					
 					writer.println();
-					// Ut
+					// Out
 					konto = arsBudget.getUtKonton().get(0);
 					writeKonton(konto, writer);
 					
 					// Budget
-					writer.println("\n[budget]");
+					writer.println("\n" + SECTION_BUDGET + Integer.toString(arsBudget.getYear()) + "]");
 					
 					konto = arsBudget.getInKonton().get(0);
 					writeBudgets(konto, arsBudget, writer);
@@ -261,7 +269,7 @@ public class StoreManagerImpl implements StoreManager {
 		}
 		
 		private void writeKonton(Konto root, PrintWriter writer){
-			String typ = root.isInTyp() ? "IN" : "UT";
+			String typ = root.isInTyp() ? TYPE_IN : TYPE_OUT;
 			String id = root.getId();
 			writer.println(id + "$" + typ + "$" + root.getNamn());
 			
@@ -274,7 +282,7 @@ public class StoreManagerImpl implements StoreManager {
 			int i = 1;
 			for(Konto child : children){
 				String currId = id + "." + i++;
-				String typ = child.isInTyp() ? "IN" : "UT";
+				String typ = child.isInTyp() ? TYPE_IN : TYPE_OUT;
 				writer.println(currId + "$" + typ + "$" + child.getNamn());
 				
 				if(!child.isLeaf())
@@ -320,9 +328,6 @@ public class StoreManagerImpl implements StoreManager {
 			builder.append(asDotId(currId));
 			builder.append("$");
 			
-			builder.append(kontoBudget.getYear());
-			builder.append("$");
-			
 			builder.append(Integer.toString(dist.getTypeId()));
 			builder.append("$");
 			
@@ -348,6 +353,7 @@ public class StoreManagerImpl implements StoreManager {
 	class BudgetFileParser{
 
 		boolean kontoMode = false;
+		int year;
 		
 		private Konto kontoIn;
 		private Konto kontoUt;
@@ -387,10 +393,16 @@ public class StoreManagerImpl implements StoreManager {
 
 			//System.out.println("[load] line: " + line);
 			if(line.length() > 0){
-				if(line.startsWith("[konto]"))
+				if(line.startsWith(SECTION_ACCOUNT)){
+					String yearPart = line.substring(SECTION_ACCOUNT.length(), line.length()-1);
+					year = Integer.parseInt(yearPart);
 					kontoMode = true;
-				else if(line.startsWith("[budget]"))
+				}
+				else if(line.startsWith(SECTION_BUDGET)){
+					String yearPart = line.substring(SECTION_BUDGET.length(), line.length()-1);
+					year = Integer.parseInt(yearPart);
 					kontoMode = false;
+				}
 				else if(kontoMode){
 					parseKonto(line);
 				}
@@ -425,13 +437,10 @@ public class StoreManagerImpl implements StoreManager {
 				kontoIn = konto;
 			else if(konto.isUtTyp())
 				kontoUt = konto;
-			
-			//System.out.println("[load] " + konto);
-			//System.out.println("idParts: " + Arrays.asList(idParts) + ", namn: '" + namn + "' " + konto);
 		}
 		
 		/**
-		 * Format: kontoId$year$budgetType$monthNumber$amount
+		 * Format: kontoId$budgetType$monthNumber$amount
 		 * 
 		 * @param line
 		 */
@@ -442,14 +451,12 @@ public class StoreManagerImpl implements StoreManager {
 			String[] idParts = parts[0].split("\\.");
 			String kontoId = asId(idParts);
 			
-			int year = Integer.parseInt(parts[1]);
-			
-			int typeId = Integer.parseInt(parts[2]);
+			int typeId = Integer.parseInt(parts[1]);
 			DistributionType type = DistributionType.values()[typeId];
 			
-			int firstMonth = Integer.parseInt(parts[3]);
+			int firstMonth = Integer.parseInt(parts[2]);
 			
-			BigDecimal amount = new BigDecimal(parts[4].replace(",", "."));
+			BigDecimal amount = new BigDecimal(parts[3].replace(",", "."));
 			
 			Konto konto = kontonById.get(kontoId);
 			if(konto == null)

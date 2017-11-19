@@ -1,6 +1,6 @@
 Developer notes
 =================
-Simple JavaFX application for displaying and manipulating budget month values for a year.
+Simple JavaFX application for displaying and manipulating budget values.
 
 Budget data consists of different accounts of two main types: Inbound or Outbound.
  

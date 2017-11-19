@@ -96,19 +96,19 @@ public class BudgetTestApp {
 		
 		private List<Konto> buildKontonUt(){
 			List<Konto> kontonUt = new ArrayList<>();
-			KontoImpl kontoParent = buildKonton("Utgifter", KontoTyp.UT, null);
+			KontoImpl kontoParent = buildKonton("Utgifter", KontoTyp.OUT, null);
 			kontonUt.add(kontoParent);
 			
-			KontoImpl kontoGrupp = buildKonton("Hus Sigtuna", KontoTyp.UT, kontoParent);
-			buildKonton("Ränta lån", KontoTyp.UT, kontoGrupp);
-			buildKonton("Amortering lån", KontoTyp.UT, kontoGrupp);
+			KontoImpl kontoGrupp = buildKonton("Hus Sigtuna", KontoTyp.OUT, kontoParent);
+			buildKonton("Ränta lån", KontoTyp.OUT, kontoGrupp);
+			buildKonton("Amortering lån", KontoTyp.OUT, kontoGrupp);
 			
-			kontoGrupp = buildKonton("Brf Uppsala", KontoTyp.UT, kontoParent);
-			buildKonton("Ränta lån", KontoTyp.UT, kontoGrupp);
-			buildKonton("Månadsavgift", KontoTyp.UT, kontoGrupp);
+			kontoGrupp = buildKonton("Brf Uppsala", KontoTyp.OUT, kontoParent);
+			buildKonton("Ränta lån", KontoTyp.OUT, kontoGrupp);
+			buildKonton("Månadsavgift", KontoTyp.OUT, kontoGrupp);
 			
-			kontoGrupp = buildKonton("Livsmedel", KontoTyp.UT, kontoParent);
-			buildKonton("ICA", KontoTyp.UT, kontoGrupp);
+			kontoGrupp = buildKonton("Livsmedel", KontoTyp.OUT, kontoParent);
+			buildKonton("ICA", KontoTyp.OUT, kontoGrupp);
 			
 			return kontonUt;
 		}

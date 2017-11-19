@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Konto {
 	
-	public enum KontoTyp {IN, UT, NETTO}
+	public enum KontoTyp {IN, OUT, NETTO}
 	
 	public String getId();
 	
