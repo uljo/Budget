@@ -1,5 +1,6 @@
 package se.cenote.budget;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Properties;
 
@@ -13,6 +14,8 @@ import se.cenote.budget.ui.AppWindow;
 
 public class BudgetApp {
 	
+	private int currYear;
+	
 	private StoreManager storeMgr;
 
 	public static void main(String[] args) {
@@ -24,6 +27,8 @@ public class BudgetApp {
 		Properties props = new Properties(); //TODO: read from file
 		storeMgr = new StoreManagerFactory(props).getStoreManager();
 		storeMgr.load();
+		
+		currYear = LocalDate.now().getYear();
 	}
 	
 	public void stop(){

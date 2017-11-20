@@ -3,3 +3,9 @@
      -fx-background-insets: 0, 0 1 1 0;
      -fx-alignment:  center_right;
  }
+ 
+ .table-view .column-header,
+.table-view .column-header .filler,
+.table-view .column-header-background .filler {
+    -fx-background-color: #0080ff;
+}

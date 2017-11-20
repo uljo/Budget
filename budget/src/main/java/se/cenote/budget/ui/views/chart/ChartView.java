@@ -1,6 +1,5 @@
 package se.cenote.budget.ui.views.chart;
 
-import java.time.LocalDate;
 
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
@@ -8,12 +7,10 @@ import org.controlsfx.glyphfont.Glyph;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 
 public class ChartView extends BorderPane{
 
@@ -79,15 +76,10 @@ public class ChartView extends BorderPane{
 
 	private void layoutComponents() {
 		
-		Label header = new Label("Årsbudget " + LocalDate.now().getYear());
-		header.setAlignment(Pos.CENTER);
-		header.setFont(Font.font(24));
-		//lbl.setStyle("-fx-border-color: red");
-		
 		VBox centerBox = new VBox();
 		centerBox.setAlignment(Pos.CENTER);
 		centerBox.setSpacing(4);
-		centerBox.getChildren().addAll(header, typeCmb);
+		centerBox.getChildren().addAll(typeCmb);
 
 		HBox topPanel = new HBox();
 		topPanel.setAlignment(Pos.CENTER);

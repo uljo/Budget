@@ -2,6 +2,7 @@ package se.cenote.budget.ui;
 
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -31,9 +31,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import se.cenote.budget.AppContext;
@@ -62,11 +68,7 @@ public class AppWindow extends Application{
 		Parent parent = new MainFrame();
 		
 		stack = new StackPane();
-		glassPane = new GlassPane();
-		glassPane.setOnMouseClicked( e -> removeGlass());
-		stack.getChildren().addAll(parent, glassPane); // NOTE: Order important!
-	
-		//stack.getChildren().addAll(parent);
+		stack.getChildren().add(parent);
 		
 		Scene scene = new Scene(stack, width, height);
 		scene.getStylesheets().add(getCssPath("budget.css"));
@@ -74,7 +76,17 @@ public class AppWindow extends Application{
 		stage.setScene(scene);
 		
 		stage.setTitle(title);
+		
+		showGlass();
 		stage.show();
+	}
+	
+	private void showGlass(){
+		if(glassPane == null){
+			glassPane = new GlassPane();
+			glassPane.setOnMouseClicked( e -> removeGlass());
+		}
+		stack.getChildren().add(glassPane);
 	}
 	
 	private void removeGlass() {
@@ -116,6 +128,7 @@ public class AppWindow extends Application{
 
 		private StackPane stack;
 		
+		private Button barsBtn;
 		private Button tblBtn;
 		private Button chartBtn;
 		
@@ -131,21 +144,6 @@ public class AppWindow extends Application{
 			layoutComponents();
 			
 			showTableView();
-		}
-		
-		public void showGlass(){
-			
-			Platform.runLater(() -> {
-				
-				chartView.update();
-				
-				stack.getChildren().clear();
-				stack.getChildren().add(chartView);
-
-				tblBtn.setDisable(false);
-				chartBtn.setDisable(false);
-				System.out.println("[showChartView] Entered");
-			});
 		}
 		
 		public void showChartView(){
@@ -171,7 +169,6 @@ public class AppWindow extends Application{
 				
 				stack.getChildren().clear();
 				stack.getChildren().add(tableView);
-				//tableView.update();
 				
 				tblBtn.setDisable(true);
 				chartBtn.setDisable(false);
@@ -186,10 +183,10 @@ public class AppWindow extends Application{
 			stack = new StackPane();
 			
 			chartView = new ChartView();
-			
 			tableView = new BudgetView();
-			//tableView.update();
-			//stack.getChildren().add(tableView);
+			
+			barsBtn = new Button("", new Glyph("FontAwesome", FontAwesome.Glyph.BARS));
+			barsBtn.setOnAction( e -> showGlass());
 			
 			Glyph tblGlyph = new Glyph("FontAwesome", FontAwesome.Glyph.TABLE);
 			tblBtn = new Button("Table", tblGlyph);
@@ -208,11 +205,12 @@ public class AppWindow extends Application{
 		private void layoutComponents() {
 			setPadding(new Insets(10));
 			
-			// Top pane
-			FlowPane topPane = new FlowPane();
-			topPane.setAlignment(Pos.CENTER_RIGHT);
-			topPane.setHgap(10);
-			topPane.getChildren().addAll(tblBtn, chartBtn);
+			Pane topInnerPane = buildTopPane();
+			
+			VBox topPane = new VBox();
+			topPane.setSpacing(4);
+			topPane.setPadding(new Insets(0, 5, 5, 5));
+			topPane.getChildren().addAll(topInnerPane, new Separator());
 			
 			setTop(topPane);
 			
@@ -233,6 +231,31 @@ public class AppWindow extends Application{
 			bottomPane.setPadding(new Insets(5, 5, 0, 5));
 			bottomPane.getChildren().addAll(new Separator(), infoPane);
 			setBottom(bottomPane);
+		}
+		
+		private Pane buildTopPane(){
+			
+	        HBox topLeftBtnPane = new HBox();
+	        topLeftBtnPane.setPrefWidth(100);
+	        topLeftBtnPane.setSpacing(10);
+	        topLeftBtnPane.getChildren().addAll(barsBtn);
+	        
+	        Text titleLbl = new Text("Årsbudget " + LocalDate.now().getYear());
+	        titleLbl.setFont(Font.font(24));
+
+	        HBox topBtnPane = new HBox();
+	        topBtnPane.setPrefWidth(100);
+	        topBtnPane.setSpacing(10);
+	        topBtnPane.getChildren().addAll(tblBtn, chartBtn);
+
+	        Region region1 = new Region();
+	        HBox.setHgrow(region1, Priority.ALWAYS);
+
+	        Region region2 = new Region();
+	        HBox.setHgrow(region2, Priority.ALWAYS);
+
+	        HBox hBox = new HBox(topLeftBtnPane, region1, titleLbl, region2, topBtnPane);
+	        return hBox;
 		}
 	}
 	
@@ -258,14 +281,17 @@ public class AppWindow extends Application{
 		private void initComponents(){
 
 			imageView = new ImageView();
-			Image image = getImage("images/logo.jpg");
+			
+			rand = new Random();
+			int index = rand.nextInt(3);
+			String[] arr = {"images/logo.jpg", "images/budget-blue.jpg", "images/budgetdesign.jpg"};
+			Image image = getImage(arr[index]);
 			imageView.setImage(image);
 			
 			canvas = new Canvas(image.getWidth(), image.getHeight());
 			nodes = new ArrayList<>();
 			nodes.add(new GlassNode( 10, -10, 10, 1));
 			
-			rand = new Random();
 			timer = new GlassTimer();
 	        timer.start();
 		}

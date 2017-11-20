@@ -37,6 +37,8 @@ Functionality:
 5) Internationalization
 
 
+#Dependencies
+Controlsfx for FontAwesome support used for icons.
 
 #Persistens
 Data is persisted on file <code>{project}/src/test/resources/budget.ser</code> on following format:
@@ -47,22 +49,21 @@ Account-part:
 
 Budget-part:
 
-	accountId$year$budgetType$monthNumber$amount
+	accountId$budgetType$monthNumber$amount
 
 Example:
 
-	[konto]
-	1$IN$Intäkter
-	1.1$IN$Lön Li
-	1.2$IN$Lön uffe
+	[account-2017]
+	1$IN$Revenue
+	1.1$IN$Sales
 	
-	2$UT$Utgifter
-	2.1$UT$Bostad Uppsala
-	2.1.1$UT$Ränta lån
+	2$OUT$Expenses
+	2.1$OUT$Equipment
+	2.1.1$OUT$Computer
 	
-	[budget]
-	1.1$2017$0$0$5000
-	1.2$2017$0$0$33800
+	[budget-2017]
+	1.1$0$0$5000
+	2.1.1$0$0$33800
 
 #AccountId
 Stored with . as separators, but in application with '-'.

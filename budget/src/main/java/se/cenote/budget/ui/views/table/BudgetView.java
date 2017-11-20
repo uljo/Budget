@@ -6,16 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import se.cenote.budget.AppContext;
 import se.cenote.budget.model.budget.ArsBudget;
 import se.cenote.budget.model.budget.MonthDistribution;
@@ -29,9 +25,6 @@ import se.cenote.budget.ui.views.table.tbl.BudgetTable.RowDragListener;
 public class BudgetView extends BorderPane{
 
 	private int year;
-	
-	private Text header;
-	
 	private BudgetTable tbl;
 
 	public BudgetView() {
@@ -147,9 +140,6 @@ public class BudgetView extends BorderPane{
 		
 		year = LocalDate.now().getYear();
 		
-		header = new Text("Årsbudget " + year);
-		header.setFont(Font.font(24));
-		
 		RowDragListener lst = new RowDragListener() {
 			@Override
 			public void onDragDropped() {
@@ -164,12 +154,6 @@ public class BudgetView extends BorderPane{
 
 	private void layoutComponents() {
 		setPadding(new Insets(10));
-		
-		FlowPane topPane = new FlowPane();
-		topPane.setAlignment(Pos.BASELINE_CENTER);
-		topPane.setPadding(new Insets(10));
-		topPane.getChildren().add(header);
-		setTop(topPane);
 		
 		setCenter(tbl);
 	}
