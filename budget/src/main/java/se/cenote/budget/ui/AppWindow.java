@@ -136,6 +136,7 @@ public class AppWindow extends Application{
 		private ChartView chartView;
 		
 		private Label fileLbl;
+		private Text titleLbl;
 		
 		private GlyphFont fontAwesome;
 		
@@ -149,6 +150,8 @@ public class AppWindow extends Application{
 		public void showChartView(){
 			
 			Platform.runLater(() -> {
+				
+				titleLbl.setText("Årsbudget " + AppContext.getInstance().getApp().getCurrYear());
 				
 				chartView.update();
 				
@@ -165,6 +168,8 @@ public class AppWindow extends Application{
 		
 			Platform.runLater(() -> {
 				
+				titleLbl.setText("Årsbudget " + AppContext.getInstance().getApp().getCurrYear());
+				
 				tableView.update();
 				
 				stack.getChildren().clear();
@@ -179,6 +184,8 @@ public class AppWindow extends Application{
 		private void initComponents() {
 			
 			fontAwesome = GlyphFontRegistry.font("FontAwesome");
+			
+			titleLbl = new Text("Årsbudget 0"); 
 			
 			stack = new StackPane();
 			
@@ -240,7 +247,7 @@ public class AppWindow extends Application{
 	        topLeftBtnPane.setSpacing(10);
 	        topLeftBtnPane.getChildren().addAll(barsBtn);
 	        
-	        Text titleLbl = new Text("Årsbudget " + LocalDate.now().getYear());
+	        
 	        titleLbl.setFont(Font.font(24));
 
 	        HBox topBtnPane = new HBox();

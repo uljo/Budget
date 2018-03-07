@@ -131,9 +131,9 @@ public class BudgetTable extends TableView<Row>{
 
 		allRows = rows;
 		
-		
 		displayMap = new HashMap<>();
-		for(Row row : allRows){
+		for(int i = 0; i < allRows.size(); i++){ // first 4 rows are always visible!
+			Row row = allRows.get(i);
 			if(displayMap.containsKey(row.getKonto())){
 				System.err.println("[update] Duplicate key in displayMap for row: " + row.getKonto());
 			}
@@ -154,7 +154,11 @@ public class BudgetTable extends TableView<Row>{
             @Override
             public void handle(MouseEvent event) {
                 if(event.getButton() == MouseButton.SECONDARY){
-                	menu.show(BudgetTable.this , event.getScreenX() , event.getScreenY());
+                	Row row = getSelectionModel().getSelectedItem();
+                	int index = getSelectionModel().getSelectedIndex();
+                	if(index > 3 && row != null){
+                		menu.show(BudgetTable.this , event.getScreenX() , event.getScreenY());
+                	}
                 }
                 else if(event.getClickCount() >= 2){
                 	Row row = getSelectionModel().getSelectedItem();
@@ -199,7 +203,8 @@ public class BudgetTable extends TableView<Row>{
 	
 	private List<Row> getVisibleRows(){
 		List<Row> list = new ArrayList<>();
-		for(Row row : allRows){
+		for(int i = 0; i < allRows.size(); i++ /*Row row : allRows*/){
+			Row row = allRows.get(i);
 			boolean visible = displayMap.get(row.getKonto());
 			if(visible){
 				list.add(row);

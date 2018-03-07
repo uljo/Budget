@@ -35,6 +35,10 @@ public class BudgetApp {
 		storeMgr.store();
 	}
 	
+	public int getCurrYear(){
+		return LocalDate.now().getYear();
+	}
+	
 	public ArsBudget getArsBudget(int year){
 		return storeMgr.getArsBudget(year);
 	}

@@ -1,6 +1,5 @@
 package se.cenote.budget.ui.views.table;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,19 +36,21 @@ public class BudgetView extends BorderPane{
 		
 		List<Row> rows = new ArrayList<>();
 		
-		rows.add(asRow(budget.getTotalBudgetIn()));
-		rows.add(asRow(budget.getTotalBudgetUt()));
-		rows.add(asRow(budget.getTotalBudgetNetto()));
-		rows.add(new Row(this, null));
-		
-		Konto kontoIn = budget.getInKonton().get(0);
-		addRow(kontoIn, budget, rows);
-		
-		rows.add(new Row(this, null));
-		
-		Konto kontoUt = budget.getUtKonton().get(0);
-		addRow(kontoUt, budget, rows);
-		
+		if(budget != null){
+			rows.add(asRow(budget.getTotalBudgetIn()));
+			rows.add(asRow(budget.getTotalBudgetUt()));
+			rows.add(asRow(budget.getTotalBudgetNetto()));
+			
+			rows.add(new Row(this, null));
+			
+			Konto kontoIn = budget.getInKonton().get(0);
+			addRow(kontoIn, budget, rows);
+			
+			rows.add(new Row(this, null));
+			
+			Konto kontoUt = budget.getUtKonton().get(0);
+			addRow(kontoUt, budget, rows);
+		}
 		System.out.println("[update] year=" + year + ", rows.size: " + rows.size());
 		
 		tbl.update(rows);
@@ -87,6 +88,17 @@ public class BudgetView extends BorderPane{
 				}
 			});
 		}
+	}
+	
+	private void addGroup(){
+		Row row = tbl.getSelectionModel().getSelectedItem();
+		Konto parentKonto = row.getKonto();
+		
+		Konto konto = AppContext.getInstance().getApp().addKonto("Grupp", parentKonto);
+		
+		//MonthDistribution monthDistribution = null;
+		//AppContext.getInstance().getApp().addKontoBudget(konto, monthDistribution, year);
+		update();
 	}
 	
 	private void addKonto(){
@@ -138,7 +150,7 @@ public class BudgetView extends BorderPane{
 
 	private void initComponents() {
 		
-		year = LocalDate.now().getYear();
+		year = AppContext.getInstance().getApp().getCurrYear();
 		
 		RowDragListener lst = new RowDragListener() {
 			@Override
@@ -160,6 +172,10 @@ public class BudgetView extends BorderPane{
 	
 	private ContextMenu buildMenu(){
 		ContextMenu menu = new ContextMenu();
+		
+		MenuItem groupAdd = new MenuItem("Ny grupp");
+		groupAdd.setOnAction(e -> addGroup());
+        menu.getItems().add(groupAdd);
 		
         MenuItem itemAdd = new MenuItem("Nytt konto");
         itemAdd.setOnAction(e -> addKonto());

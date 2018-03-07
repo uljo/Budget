@@ -24,20 +24,23 @@ public class BarChartPanel extends StackPane{
 	}
 	
 	public void update(){
-		ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(LocalDate.now().getYear());
+		int year = AppContext.getInstance().getApp().getCurrYear();
+		ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(year);
 		
-		Konto kontoIn = arsBudget.getInKonton().get(0);
-        KontoBudget kontoBudgetIn = arsBudget.getBudget(kontoIn);
-        XYChart.Series<String, Number> series1 = getSerie("Intäkter", kontoBudgetIn);
-        
-        Konto kontoUt = arsBudget.getUtKonton().get(0);
-        KontoBudget kontoBudgetUt = arsBudget.getBudget(kontoUt);
-        XYChart.Series<String, Number> series2 = getSerie("Utgifter", kontoBudgetUt);
-        
-        Platform.runLater(() -> {
-        	chart.getData().clear();
-            chart.getData().addAll(series1, series2);
-		});
+		if(arsBudget != null){
+			Konto kontoIn = arsBudget.getInKonton().get(0);
+	        KontoBudget kontoBudgetIn = arsBudget.getBudget(kontoIn);
+	        XYChart.Series<String, Number> series1 = getSerie("Intäkter", kontoBudgetIn);
+	        
+	        Konto kontoUt = arsBudget.getUtKonton().get(0);
+	        KontoBudget kontoBudgetUt = arsBudget.getBudget(kontoUt);
+	        XYChart.Series<String, Number> series2 = getSerie("Utgifter", kontoBudgetUt);
+	        
+	        Platform.runLater(() -> {
+	        	chart.getData().clear();
+	            chart.getData().addAll(series1, series2);
+			});
+		}
 	}
 
 	private void initComponents() {
@@ -50,18 +53,27 @@ public class BarChartPanel extends StackPane{
         chart = new BarChart<String, Number>(xAxis, yAxis);
         //chart.setTitle("Årsbudget");
         
-        ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(LocalDate.now().getYear());
+        int year = AppContext.getInstance().getApp().getCurrYear();
+        ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(year);
         
-        Konto kontoIn = arsBudget.getInKonton().get(0);
-        KontoBudget kontoBudgetIn = arsBudget.getBudget(kontoIn);
-              
-        XYChart.Series<String, Number> series1 = getSerie("Intäkter", kontoBudgetIn);
-        
-        Konto kontoUt = arsBudget.getUtKonton().get(0);
-        KontoBudget kontoBudgetUt = arsBudget.getBudget(kontoUt);
-        XYChart.Series<String, Number> series2 = getSerie("Utgifter", kontoBudgetUt);
-        
-        chart.getData().addAll(series1, series2);
+        if(arsBudget != null){
+	        Konto kontoIn = arsBudget.getInKonton().isEmpty() ? null : arsBudget.getInKonton().get(0);
+	        if(kontoIn != null){
+		        KontoBudget kontoBudgetIn = arsBudget.getBudget(kontoIn);
+		        XYChart.Series<String, Number> series1 = kontoBudgetIn != null ? getSerie("Intäkter", kontoBudgetIn) : null;
+		        if(series1 != null)
+		        	chart.getData().add(series1);
+	        }
+	        
+	        Konto kontoUt = arsBudget.getUtKonton().isEmpty() ? null : arsBudget.getUtKonton().get(0);
+	        if(kontoUt != null){
+	        	KontoBudget kontoBudgetUt = arsBudget.getBudget(kontoUt);
+		        XYChart.Series<String, Number> series2 = kontoBudgetUt != null ? getSerie("Utgifter", kontoBudgetUt) : null;
+		        
+		        if(series2 != null)
+		        	chart.getData().add(series2);
+	        }
+        }
 	}
 	
 	private XYChart.Series<String, Number> getSerie(String name, KontoBudget kontoBudget){

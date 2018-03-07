@@ -14,6 +14,7 @@ import se.cenote.budget.dao.fs.budget.KontoBudgetImpl;
 import se.cenote.budget.dao.fs.konto.KontoImpl;
 import se.cenote.budget.model.budget.ArsBudget;
 import se.cenote.budget.model.budget.KontoBudget;
+import se.cenote.budget.model.budget.MonthDistribution;
 import se.cenote.budget.model.konto.Konto;
 import se.cenote.budget.model.konto.Konto.KontoTyp;
 
@@ -21,7 +22,33 @@ public class BudgetTestApp {
 
 	public static void main(String[] args) {
 		
-		new BudgetTestApp().testB();
+		BudgetTestApp app = new BudgetTestApp();
+		
+		//app.testA();
+		//app.testB();
+		app.testC();
+	}
+	
+	private void testC(){
+		
+		int year = 2017;
+		ArsBudgetImpl arsBudget = new ArsBudgetImpl(year);
+		
+		System.out.println("1");
+		ArsBudgetPrinter.print(arsBudget);
+		
+		Konto parent = arsBudget.getInKonton().get(0);
+		KontoImpl konto = new KontoImpl(null, KontoTyp.IN, "Test 1", "");
+		((KontoImpl)parent).addChild(konto);
+		double[] amounts = new double[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0, 0};
+		KontoBudgetImpl budget = new KontoBudgetImpl(konto, year, amounts);
+		
+		//MonthDistribution monthDist = new MonthDistribution(kontoName, amount, type, firstMonthNum);
+		//budget.setMonthDistribution(monthDist);
+		arsBudget.add(budget);
+		
+		System.out.println("2");
+		ArsBudgetPrinter.print(arsBudget);
 	}
 	
 	private void testA(){
@@ -192,8 +219,10 @@ public class BudgetTestApp {
 			KontoBudget kontoBudget = arsBudget.getBudget(konto);
 			if(kontoBudget != null){
 				for(int month = 1; month <= 12; month++){
-					System.out.printf("%5.0f ", kontoBudget.getBelopp(month-1));
+					System.out.printf("%5.0f ", kontoBudget.getBelopp(month));
 				}
+				System.out.printf("%5.0f ", kontoBudget.getTotal());
+				System.out.printf("%5.0f ", kontoBudget.getAverage());
 			}
 			System.out.printf("%n");
 		}

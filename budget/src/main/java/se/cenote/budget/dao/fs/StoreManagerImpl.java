@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -44,13 +45,25 @@ public class StoreManagerImpl implements StoreManager {
 	public StoreManagerImpl(File dir){
 		storeFile = new File(dir, FILE_NAME);
 		
-		if(!storeFile.exists())
-			throw new RuntimeException("Cant read file " + storeFile.getAbsolutePath());
+		if(!storeFile.exists()){
+			try{
+				if(storeFile.createNewFile())
+					System.out.println("Created new storage file: " + storeFile.getAbsolutePath());
+			}
+			catch(Exception e){
+				throw new RuntimeException("Could not create file " + storeFile.getAbsolutePath());
+			}
+		}	
 	}
 	
 	@Override
 	public ArsBudget getArsBudget(int year){
-		return arsBudgetByYear.get(year);
+		ArsBudget arsBudget = arsBudgetByYear.get(year);
+		if(arsBudget == null){
+			arsBudget = new ArsBudgetImpl(year);
+			arsBudgetByYear.put(year, arsBudget);
+		}
+		return arsBudget;
 	}
 	
 	@Override

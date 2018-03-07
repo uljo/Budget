@@ -37,8 +37,12 @@ public class PieChartPanel extends BorderPane{
 	}
 	
 	public void update(){
-		ObservableList<PieChart.Data> dataIn = FXCollections.observableArrayList(getDataIn());
-		ObservableList<PieChart.Data> dataUt = FXCollections.observableArrayList(getDataUt());
+		
+		int year = AppContext.getInstance().getApp().getCurrYear();
+		ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(year);
+		
+		ObservableList<PieChart.Data> dataIn = FXCollections.observableArrayList(getDataIn(arsBudget));
+		ObservableList<PieChart.Data> dataUt = FXCollections.observableArrayList(getDataUt(arsBudget));
 		
 		Platform.runLater(() -> {
 			pieChartIn.getData().clear();
@@ -74,40 +78,44 @@ public class PieChartPanel extends BorderPane{
 		System.out.println("[hideLable] text: " + caption.getText() + ", coord: ");
 	}
 	
-	private List<PieChart.Data> getDataIn(){
-		ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(LocalDate.now().getYear());
-		Konto root = arsBudget.getInKonton().get(0);
+	private List<PieChart.Data> getDataIn(ArsBudget arsBudget){
+		Konto root = arsBudget != null ? (arsBudget.getInKonton().size() > 0 ? arsBudget.getInKonton().get(0) : null) : null;
 		return getData(root, arsBudget);
 	}
 	
-	private List<PieChart.Data> getDataUt(){
-		ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(LocalDate.now().getYear());
-		Konto root = arsBudget.getUtKonton().get(0);
+	private List<PieChart.Data> getDataUt(ArsBudget arsBudget){
+		Konto root = arsBudget != null ? (arsBudget.getUtKonton().isEmpty() ? null : arsBudget.getUtKonton().get(0)) : null;
 		return getData(root, arsBudget);
 	}
 	
 	private List<PieChart.Data> getData(Konto root, ArsBudget arsBudget){
 		
 		List<PieChart.Data> list = new ArrayList<>();
-		List<Konto> decendants = ((KontoImpl)root).getDecendents();
-		for(Konto konto : decendants){
-			
-			if(konto.isInTyp() || konto.getLevel() == 2){
-			
-				KontoBudget kontoBudget = arsBudget.getBudget(konto);
-				double amount = kontoBudget.getTotal();
-				list.add(new PieChart.Data(konto.getNamn(), amount));
+		if(root != null){
+			List<Konto> decendants = ((KontoImpl)root).getDecendents();
+			for(Konto konto : decendants){
+				
+				if(konto.isInTyp() || konto.getLevel() == 2){
+				
+					KontoBudget kontoBudget = arsBudget.getBudget(konto);
+					double amount = kontoBudget.getTotal();
+					list.add(new PieChart.Data(konto.getNamn(), amount));
+				}
 			}
 		}
 		return list;
 	}
 
 	private void initComponents(){
-		ObservableList<PieChart.Data> dataIn = FXCollections.observableArrayList(getDataIn());
+		
+		int year = AppContext.getInstance().getApp().getCurrYear();
+		ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(year);
+		
+		ObservableList<PieChart.Data> dataIn = FXCollections.observableArrayList(getDataIn(arsBudget));
 		pieChartIn = new PieChart(dataIn);
 		pieChartIn.setTitle("Intäkter");
 		
-		ObservableList<PieChart.Data> pieChartDataUt = FXCollections.observableArrayList(getDataUt());
+		ObservableList<PieChart.Data> pieChartDataUt = FXCollections.observableArrayList(getDataUt(arsBudget));
 		pieChartUt = new PieChart(pieChartDataUt);
 		pieChartUt.setTitle("Utgifter");
 		

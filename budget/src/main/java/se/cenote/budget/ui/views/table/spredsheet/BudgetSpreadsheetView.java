@@ -1,6 +1,5 @@
 package se.cenote.budget.ui.views.table.spredsheet;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +32,18 @@ public class BudgetSpreadsheetView extends BorderPane{
 		layoutComponents();
 	}
 
+	private void initComponents() {
+		
+		this.year = AppContext.getInstance().getApp().getCurrYear();
+		ArsBudget arsBudget = AppContext.getInstance().getApp().getArsBudget(year);
+		
+		heading = new Text("Månadsbudget: " + arsBudget.getYear());
+		
+		GridBase grid = buildGrid(arsBudget);
+
+		spreadSheet = new SpreadsheetView(grid);
+	}
+	
 	private void layoutComponents() {
 		setPadding(new Insets(10, 0, 0, 0));
 		
@@ -42,22 +53,7 @@ public class BudgetSpreadsheetView extends BorderPane{
 		topPane.getChildren().add(heading);
 		setTop(topPane);
 		
-		
 		setCenter(spreadSheet);
-	}
-
-	private void initComponents() {
-		
-		this.year = LocalDate.now().getYear();
-		
-		heading = new Text("Månadsbudget: " + year);
-		
-		
-		ArsBudget budget = AppContext.getInstance().getApp().getArsBudget(year);
-
-		GridBase grid = buildGrid(budget);
-
-		spreadSheet = new SpreadsheetView(grid);
 	}
 	
 	private GridBase buildGrid(ArsBudget budget){
@@ -76,47 +72,17 @@ public class BudgetSpreadsheetView extends BorderPane{
 		
 		// A) First part: Intäkter, Utgifter, Netto
 		rows.add(asCells("Intäkter", budget.getTotalBudgetIn(), row++));
-		
 		rows.add(asCells("Utgifter", budget.getTotalBudgetUt(), row++));
-		
 		rows.add(asCells("Netto", budget.getTotalBudgetNetto(), row++));
-		
-		//rows.add(asCells("", columnCount, row++));
-		//rows.add(asHeaderRow("", columnCount, row++));
-		
 		
 		// B) Second part: Intäkter detalj
 		rows.add(asCells("Intäkter", columnCount, row++));
-		//rows.add(asHeaderRow("Intäkter", columnCount, row++));
-		
-		for(Konto kontoGrupp : budget.getInKonton()){
-			
-			// a) Add for each konto in grupp
-			for(Konto konto : kontoGrupp.getChildren()){
-				KontoBudget kontoBudget = budget.getBudget(konto);
-				rows.add(asCells(konto, kontoBudget, row++, "   "));
-			}
-			
-			// b) Add total for grupp
-			rows.add(asCells(kontoGrupp, budget.getBudget(kontoGrupp), row++, ""));
-		}
-		
-		//rows.add(asCells("", columnCount, row++));
+		rows.addAll(asRows(true, budget, row));
+
 		
 		// C) Second part: Utgifter detalj
 		rows.add(asCells("Utgifter", columnCount, row++));
-		//rows.add(asHeaderRow("Utgifter", columnCount, row++));
-				
-		for(Konto kontoGrupp : budget.getUtKonton()){
-			
-			// a) Add konton in grupp..
-			for(Konto konto : kontoGrupp.getChildren()){
-				rows.add(asCells(konto, budget.getBudget(konto), row++, "   "));
-			}
-			
-			// b) Add total row for grupp..
-			rows.add(asCells(kontoGrupp, budget.getBudget(kontoGrupp), row++, ""));
-		}
+		rows.addAll(asRows(false, budget, row));
 		
 		grid.setRows(rows);
 		
@@ -129,6 +95,31 @@ public class BudgetSpreadsheetView extends BorderPane{
 		setHeaders(grid);
 		
 		return grid;
+	}
+	
+	private ObservableList<ObservableList<SpreadsheetCell>> asRows(boolean isIn, ArsBudget arsBudget, int row){
+		ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
+		
+		List<Konto> konton = isIn ? arsBudget.getInKonton() : arsBudget.getUtKonton();
+		
+		for(Konto kontoGrupp : konton){
+			
+			if(kontoGrupp.isLeaf()){
+				KontoBudget kontoBudget = arsBudget.getBudget(kontoGrupp);
+				rows.add(asCells(kontoGrupp, kontoBudget, row++, "   "));
+			}
+			else{
+				// a) Add for each konto in grupp
+				for(Konto konto : kontoGrupp.getChildren()){
+					KontoBudget kontoBudget = arsBudget.getBudget(konto);
+					rows.add(asCells(konto, kontoBudget, row++, "   "));
+				}
+				
+				// b) Add total for grupp
+				rows.add(asCells(kontoGrupp, arsBudget.getBudget(kontoGrupp), row++, ""));
+			}
+		}
+		return rows;
 	}
 	
 	private ObservableList<SpreadsheetCell> asCells(Konto konto, KontoBudget kontoBudget, int row, String prefix){

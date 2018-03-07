@@ -28,10 +28,22 @@ public class KontoBudgetImpl implements KontoBudget{
 	}
 	
 	public KontoBudgetImpl(Konto konto, int year, double[] monthAmounts) {
+		
+		if(monthAmounts.length != 14)
+			throw new IllegalArgumentException("Array 'mounthAmounts' must have length 14!");
+		
 		this.konto = konto;
 		this.year = year;
 		
 		this.monthAmounts = monthAmounts;
+	}
+	
+	public KontoBudgetImpl(Konto konto, int year) {
+		
+		this.konto = konto;
+		this.year = year;
+		
+		monthAmounts = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	}
 
 	@Override
@@ -87,9 +99,9 @@ public class KontoBudgetImpl implements KontoBudget{
 	public static double[] getDiff(KontoBudget budgetIn, KontoBudget budgetUt){
 		double[] arr = new double[14];
 		double sum = 0;
-		for(int month = 0; month < 12; month++){
+		for(int month = 1; month <= 12; month++){
 			double netto = budgetIn.getBelopp(month) - budgetUt.getBelopp(month);
-			arr[month] = netto;
+			arr[month-1] = netto;
 			sum += netto;
 		}
 		arr[12] = sum;

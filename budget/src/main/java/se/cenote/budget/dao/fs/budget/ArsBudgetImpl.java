@@ -1,5 +1,9 @@
 package se.cenote.budget.dao.fs.budget;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,11 +22,38 @@ public class ArsBudgetImpl implements ArsBudget{
 	
 	private Map<Konto, KontoBudget> budgetByKonto;
 	
+	private static final String TEXT_REVENUE = "Intäkter";
+	private static final String TEXT_COSTS = "Utgifter";
+	
 	public ArsBudgetImpl(int year, List<Konto> kontonIn, List<Konto> kontonUt, Map<Konto, KontoBudget> budgetByKonto) {
 		this.year = year;
 		this.kontonIn = kontonIn;
 		this.kontonUt = kontonUt;
 		this.budgetByKonto = budgetByKonto;
+	}
+	
+	public ArsBudgetImpl(int year) {
+		
+		this.year = year;
+		
+		
+		this.kontonIn = new ArrayList<>();
+		Konto kontoIn = new KontoImpl("In", KontoTyp.IN, TEXT_REVENUE, "");
+		kontonIn.add(kontoIn);
+		
+		this.kontonUt = new ArrayList<>();
+		Konto kontoUt = new KontoImpl("Ut", KontoTyp.OUT, TEXT_COSTS, "");
+		kontonUt.add(kontoUt);
+
+		
+		this.budgetByKonto = new HashMap<Konto, KontoBudget>();
+		/*
+		KontoBudget budgetIn = new KontoBudgetImpl(kontoIn, year);
+		budgetByKonto.put(kontoIn, budgetIn);
+		
+		KontoBudget budgetUt = new KontoBudgetImpl(kontoUt, year);
+		budgetByKonto.put(kontoUt, budgetUt);
+		*/
 	}
 
 	@Override
@@ -32,23 +63,23 @@ public class ArsBudgetImpl implements ArsBudget{
 
 	@Override
 	public List<Konto> getInKonton() {
-		return kontonIn;
+		return kontonIn != null ? kontonIn : Collections.emptyList();
 	}
 
 	@Override
 	public List<Konto> getUtKonton() {
-		return kontonUt;
+		return kontonUt != null ? kontonUt : Collections.emptyList();
 	}
 	
 	@Override
 	public KontoBudget getTotalBudgetIn(){
-		Konto kontoIn = kontonIn.get(0);
+		Konto kontoIn = getInKonton().get(0);
 		return getBudget(kontoIn);
 	}
 	
 	@Override
 	public KontoBudget getTotalBudgetUt(){
-		Konto kontoUt = kontonUt.get(0);
+		Konto kontoUt = getUtKonton().get(0);
 		return getBudget(kontoUt);
 	}
 	
@@ -57,6 +88,9 @@ public class ArsBudgetImpl implements ArsBudget{
 		KontoBudget budgetIn = getTotalBudgetIn();
 		KontoBudget budgetUt = getTotalBudgetUt();
 		double[] arr = KontoBudgetImpl.getDiff(budgetIn, budgetUt);
+		
+		System.out.println("[getTotalBudgetNetto] arr: " + asList(arr));
+		
 		return new KontoBudgetImpl(new KontoImpl("0", KontoTyp.NETTO, "Netto", ""), year, arr);
 	}
 
@@ -94,8 +128,6 @@ public class ArsBudgetImpl implements ArsBudget{
 		}
 		arr[13] = arr[12]/12;
 		
-		//System.out.println("[getMonthArr] konto: " + konto.getNamn() + ", arr: " + Arrays.toString(arr));
-		
 		return arr;
 	}
 	
@@ -108,10 +140,20 @@ public class ArsBudgetImpl implements ArsBudget{
 		}
 		else{
 			KontoBudget kontoBudget = budgetByKonto.get(konto);
-			for(int month = 1; month <= 12; month++){
-				arr[month-1] += kontoBudget.getBelopp(month);
+			if(kontoBudget != null){
+				for(int month = 1; month <= 12; month++){
+					arr[month-1] += kontoBudget.getBelopp(month);
+				}
 			}
 		}
+	}
+	
+	private static List<Double> asList(double[] arr){
+		List<Double> list = new ArrayList<>();
+		for(double v : arr){
+			list.add(v);
+		}
+		return list;
 	}
 
 }
